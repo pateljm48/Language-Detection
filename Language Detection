@@ -1,0 +1,134 @@
+pip install azure-ai-textanalytics
+cognitive_key ='9c0782e45754480c9a91da664488f94f'
+cognitive_endpoint='https://jmp-language.cognitiveservices.azure.com/'
+
+from azure.core.credentials import AzureKeyCredential
+from azure.ai.textanalytics import TextAnalyticsClient, TextDocumentInput
+
+credential=AzureKeyCredential(cognitive_key)
+text_analytics_client=TextAnalyticsClient(endpoint=cognitive_endpoint, credential=credential)
+documents=[
+
+    "A little progress each day adds up to big results.",
+    "સાવ બેઠો છું કોઈ કામ નથી,આવ,ગૂંચવાયેલી લટને સૂલઝાવું,લાવ.",
+    "ترحيب حار في بلدي ابن عم",
+    " वक्ता अपने हृदयस्थ भावों को कम-से-कम शब्दों में प्रभावपूर्ण ढंग से सफलतापूर्वक अभिव्यक्त कर देता है।",
+    "La façon de commencer est d’arrêter de parler et de commencer à faire.",
+    "İş, sınavlar, ev ödevleri, derse zamanında yetişme ve sosyal bir hayata sahip olma arasında hokkabazlık yapmaya çalışıyorsunuz."
+
+    ]
+
+language_analysis = text_analytics_client.detect_language(documents)
+
+result=[ doc for doc in language_analysis if not doc.is_error]
+
+for doc in result:
+    print("Language Detected:{}".format(doc.primary_language.name))
+    print("ISO6391 name:{}".format(doc.primary_language.iso6391_name))
+    print("Confidence score:{}\n".format(doc.primary_language.confidence_score))
+
+response = text_analytics_client.analyze_sentiment(documents)
+
+for doc in response:
+    print("Overall sentiment: {}".format(doc.sentiment))
+    print("Scores: positive={}, neutral={}, negative={}\n".format(
+        doc.confidence_scores.positive,
+        doc.confidence_scores.neutral,
+        doc.confidence_scores.negative,
+    ))
+
+import pandas as pd
+import numpy as np
+from sklearn.metrics import accuracy_score, jaccard_score, f1_score,log_loss, mean_absolute_error, mean_squared_error, r2_score
+
+# Example ground truth and predicted language labels (replace with your actual data)
+actual_labels = ["English", "Gujarati", "Arabic", "Hindi", "French", "Turkish"]
+predicted_labels = ["English", "Gujarati", "Arabic", "German", "French", "Turkish"]
+
+# Calculate accuracy score
+accuracy = accuracy_score(actual_labels, predicted_labels)
+print(f"Accuracy Score: {accuracy:.4f}")
+
+# Calculate Jaccard index
+jaccard = jaccard_score(actual_labels, predicted_labels, average="weighted")
+print(f"Jaccard Index: {jaccard:.4f}")
+
+# Calculate F1-score
+f1 = f1_score(actual_labels, predicted_labels, average="weighted")
+print(f"F1-Score: {f1:.4f}")
+
+y_true = np.array([1, 0, 1, 0, 1])
+y_pred_probs = np.array([0.9, 0.2, 0.8, 0.1, 0.95])
+
+# Calculate log loss
+logloss = log_loss(y_true, y_pred_probs)
+print(f"Log Loss: {logloss:.4f}")
+
+# Example ground truth and predicted values (replace with your actual data)
+y_true_regression = np.array([3, -0.5, 2, 7])
+y_pred_regression = np.array([2.5, 0.0, 2, 8])
+
+# Calculate MAE
+mae = mean_absolute_error(y_true_regression, y_pred_regression)
+print(f"Mean Absolute Error: {mae:.4f}")
+
+# Calculate MSE
+mse = mean_squared_error(y_true_regression, y_pred_regression)
+print(f"Mean Squared Error: {mse:.4f}")
+
+# Calculate R2-score
+r2 = r2_score(y_true_regression, y_pred_regression)
+print(f"R2-Score: {r2:.4f}")
+
+
+Output:
+
+Language Detected:English
+ISO6391 name:en
+Confidence score:1.0
+
+Language Detected:Gujarati
+ISO6391 name:gu
+Confidence score:1.0
+
+Language Detected:Arabic
+ISO6391 name:ar
+Confidence score:1.0
+
+Language Detected:Hindi
+ISO6391 name:hi
+Confidence score:1.0
+
+Language Detected:French
+ISO6391 name:fr
+Confidence score:1.0
+
+Language Detected:Turkish
+ISO6391 name:tr
+Confidence score:1.0
+
+Overall sentiment: neutral
+Scores: positive=0.44, neutral=0.54, negative=0.02
+
+Overall sentiment: neutral
+Scores: positive=0.13, neutral=0.58, negative=0.29
+
+Overall sentiment: positive
+Scores: positive=0.57, neutral=0.41, negative=0.02
+
+Overall sentiment: neutral
+Scores: positive=0.45, neutral=0.53, negative=0.01
+
+Overall sentiment: neutral
+Scores: positive=0.05, neutral=0.87, negative=0.08
+
+Overall sentiment: neutral
+Scores: positive=0.12, neutral=0.86, negative=0.02
+
+Accuracy Score: 0.8333
+Jaccard Index: 0.8333
+F1-Score: 0.8333
+Log Loss: 0.1417
+Mean Absolute Error: 0.5000
+Mean Squared Error: 0.3750
+R2-Score: 0.9486
